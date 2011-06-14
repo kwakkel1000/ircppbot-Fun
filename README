@@ -1,0 +1,6 @@
+building:
+mkdir [topdir]conf/Fun
+cp conf.ini.example [topdir]conf/Fun/conf.ini
+add conf/Fun/conf.ini to [topdir]conf/conf.ini  under the [config] section
+make clean
+make all
