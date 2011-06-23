@@ -45,6 +45,8 @@ private:
     void ParseData(std::vector< std::string > vData);
     void ParsePrivmsg(std::vector< std::string > vData);
 
+    void INVITE(std::vector< std::string > data);
+
     //post parse functions
     void Sample();
 

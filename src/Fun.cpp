@@ -113,10 +113,21 @@ void Fun::parse_privmsg()
     }
 }
 
+void Fun::INVITE(std::vector< std::string > data)
+{
+    std::string returnstr = "JOIN " + data[3] + "\r\n";
+    Send(returnstr);
+}
 
 void Fun::ParseData(std::vector< std::string > data)
 {
-    ;
+    if (data.size() >= 4)
+    {
+        if (data[1] == "INVITE")   //INVITE
+        {
+            INVITE(data);
+        }
+    }
 }
 
 
