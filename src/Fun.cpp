@@ -59,6 +59,7 @@ Fun::~Fun()
 }
 void Fun::Init(DataInterface* pData)
 {
+    srand ( time(NULL) );
     mpDataInterface = pData;
     mpDataInterface->Init(true, false, false, true);
     Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
@@ -156,7 +157,13 @@ void Fun::ParsePrivmsg(std::vector< std::string > vData)
         }
         for (unsigned int uiStringIndex = 1; uiStringIndex < sColorString.size(); uiStringIndex++)
         {
-            sSendString = sSendString + char(3) + Output::Instance().StringFromInt(rand()%13+2) + "," + Output::Instance().StringFromInt(rand()%13+2) + sColorString[uiStringIndex];
+            unsigned int rand1 = rand()%13+2;
+            unsigned int rand2 = rand()%13+2;
+            while (rand1 == rand2)
+            {
+                rand2 = rand()%13+2;
+            }
+            sSendString = sSendString + char(3) + Output::Instance().StringFromInt(rand1) + "," + Output::Instance().StringFromInt(rand2) + sColorString[uiStringIndex];
         }
         Send(sSendString);
     }
