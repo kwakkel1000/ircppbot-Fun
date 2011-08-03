@@ -182,7 +182,7 @@ void Fun::timerrun()
     iLongTime++;
     if (iLongTime >= 30)
     {
-        std::cout << "timed" << std::endl;
+        // std::cout << "timed" << std::endl;  // annoying
         timerlong();
         iLongTime = 0;
     }
