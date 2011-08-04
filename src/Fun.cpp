@@ -239,7 +239,7 @@ void Fun::ParseTimedCommand(std::string msCommand, int miTime)
 {
     if (msCommand == "[120] quotes")    // splitting into [time] and command where [time] is optional and time is a INT
     {
-        timer_long_sec.push_back(miTime + 60);
+        timer_long_sec.push_back(miTime + 300);
         timer_long_command.push_back("[120] quotes");
         Quote();
     }
