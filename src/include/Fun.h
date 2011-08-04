@@ -22,6 +22,7 @@ private:
     //vars
 
     bool bRun;
+    std::vector< std::string > vQuotes;
 
     //classes
     DataInterface* mpDataInterface;
@@ -49,10 +50,11 @@ private:
 
     //post parse functions
     void Sample();
+    void Quote();
 
     //timer
     void timerlong();
-
+    void ParseTimedCommand(std::string msCommand, int miTime);
 };
 
 #endif // FUN_H

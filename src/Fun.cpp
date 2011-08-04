@@ -30,6 +30,7 @@
 
 #include <core/Global.h>
 #include <core/Output.h>
+#include <core/DatabaseData.h>
 #include <iostream>
 #include <algorithm>
 #include <cstdio>
@@ -63,6 +64,12 @@ void Fun::Init(DataInterface* pData)
     mpDataInterface = pData;
     mpDataInterface->Init(true, false, false, true);
     Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
+    vQuotes = DatabaseData::Instance().GetData("quotes", "quote", "1 = 1");
+    int Tijd;
+    time_t t= time(0);
+    Tijd = t;
+    timer_long_sec.push_back(Tijd + 60);
+    timer_long_command.push_back("[120] quotes");
 
     timerlong();
 }
@@ -174,6 +181,17 @@ void Fun::Sample()
     ;
 }
 
+void Fun::Quote()
+{
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    unsigned int _uiRandQuote = rand()%vQuotes.size();
+    unsigned int _uiRandChannel = rand()%C.GetChannels().size();
+    std::vector< std::string > _vChannels = C.GetChannels();
+    std::string _sRandomChannel = _vChannels[_uiRandChannel];
+    std::string _sRandomQUote = vQuotes[_uiRandQuote];
+    Send(Global::Instance().get_Reply().irc_privmsg(_sRandomChannel, _sRandomQUote));
+}
+
 void Fun::timerrun()
 {
     int Tijd;
@@ -191,6 +209,7 @@ void Fun::timerrun()
         if (timer_sec[i] < Tijd)
         {
             std::cout << timer_command[i] << std::endl;
+            ParseTimedCommand(timer_command[i], timer_sec[i]);
             timer_sec.erase(timer_sec.begin()+i);
             timer_command.erase(timer_command.begin()+i);
         }
@@ -213,6 +232,16 @@ void Fun::timerlong()
             timer_long_sec.erase(timer_long_sec.begin()+i);
             timer_long_command.erase(timer_long_command.begin()+i);
         }
+    }
+}
+
+void Fun::ParseTimedCommand(std::string msCommand, int miTime)
+{
+    if (msCommand == "[120] quotes")    // splitting into [time] and command where [time] is optional and time is a INT
+    {
+        timer_long_sec.push_back(miTime + 60);
+        timer_long_command.push_back("[120] quotes");
+        Quote();
     }
 }
 
