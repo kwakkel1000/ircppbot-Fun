@@ -233,7 +233,7 @@ void Fun::Quote()
         unsigned int _uiRandChannel = rand()%C.GetChannels().size();
         std::vector< std::string > _vChannels = C.GetChannels();
         std::string _sRandomChannel = _vChannels[_uiRandChannel];
-        std::string _sRandomQUote = "[" + BotLib::StringFromInt(_uiRandQuote) + "]" + vQuotes[_uiRandQuote];
+        std::string _sRandomQUote = "[" + BotLib::StringFromInt(_uiRandQuote + 1)+ "]" + vQuotes[_uiRandQuote];
         Send(Global::Instance().get_Reply().irc_privmsg(_sRandomChannel, _sRandomQUote));
     }
 }
