@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <boost/algorithm/string.hpp>
 
+#include <core/BotLib.h>
 #include <core/Global.h>
 #include <core/Output.h>
 #include <core/DatabaseData.h>
@@ -37,44 +38,82 @@
 #include <vector>
 #include <string>
 
-
+/**
+ * create
+ * Return a instance of this class
+ * @return New instance of this class
+ *
+ */
 extern "C" ModuleInterface* create()
 {
     return new Fun;
 }
 
+/**
+ * destroy
+ * Destory the given object of this class
+ * @param x the object to be deleted        to be renamed later
+ *
+ */
 extern "C" void destroy(ModuleInterface* x)
 {
     delete x;
 }
 
+/**
+ * Constructor
+ * Create ourself
+ *
+ */
 Fun::Fun()
 {
 }
 
+/**
+ * Deconstructor
+ * Call some functions to remove ourself from the plain of existance
+ * destroy some vars
+ * Delete ourself
+ *
+ */
 Fun::~Fun()
 {
     stop();
     Global::Instance().get_IrcData().DelConsumer(mpDataInterface);
     delete mpDataInterface;
 }
-void Fun::Init(DataInterface* pData)
+
+/**
+ * Init
+ * Initialise some vars
+ * @param DataInterface pointer mpData
+ *
+ */
+void Fun::Init(DataInterface* mpData)
 {
     srand ( time(NULL) );
-    mpDataInterface = pData;
+    mpDataInterface = mpData;
     mpDataInterface->Init(true, false, false, true);
     Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
-    vQuotes = DatabaseData::Instance().GetData("quotes", "quote", "1 = 1");
+    uiTimeConfig =  BotLib::IntFromString(Global::Instance().get_ConfigReader().GetString("FunTimeConfig"));
+    uiMininumTimeConfig = BotLib::IntFromString(Global::Instance().get_ConfigReader().GetString("FunMinimumTimeConfig"));
+    sQuotesTable = Global::Instance().get_ConfigReader().GetString("FunQuotesTable");
+    vQuotes = DatabaseData::Instance().GetData(sQuotesTable, "quote", "1 = 1");
     int Tijd;
     time_t t= time(0);
     Tijd = t;
     timer_long_sec.push_back(Tijd + 60);
-    timer_long_command.push_back("[120] quotes");
+    timer_long_command.push_back("quotes");
 
     timerlong();
 }
 
-
+/**
+ * stop
+ * Return a instance of this class
+ * @return New instance of this class
+ *
+ */
 void Fun::stop()
 {
     bRun = false;
@@ -174,6 +213,10 @@ void Fun::ParsePrivmsg(std::vector< std::string > vData)
         }
         Send(sSendString);
     }
+
+    if (boost::iequals(vData[3], ":rainbow"))
+    {
+    }
 }
 
 void Fun::Sample()
@@ -184,12 +227,15 @@ void Fun::Sample()
 void Fun::Quote()
 {
     ChannelsInterface& C = Global::Instance().get_Channels();
-    unsigned int _uiRandQuote = rand()%vQuotes.size();
-    unsigned int _uiRandChannel = rand()%C.GetChannels().size();
-    std::vector< std::string > _vChannels = C.GetChannels();
-    std::string _sRandomChannel = _vChannels[_uiRandChannel];
-    std::string _sRandomQUote = vQuotes[_uiRandQuote];
-    Send(Global::Instance().get_Reply().irc_privmsg(_sRandomChannel, _sRandomQUote));
+    if (C.GetChannels().size() > 0)
+    {
+        unsigned int _uiRandQuote = rand()%vQuotes.size();
+        unsigned int _uiRandChannel = rand()%C.GetChannels().size();
+        std::vector< std::string > _vChannels = C.GetChannels();
+        std::string _sRandomChannel = _vChannels[_uiRandChannel];
+        std::string _sRandomQUote = "[" + BotLib::StringFromInt(_uiRandQuote) + "]" + vQuotes[_uiRandQuote];
+        Send(Global::Instance().get_Reply().irc_privmsg(_sRandomChannel, _sRandomQUote));
+    }
 }
 
 void Fun::timerrun()
@@ -237,10 +283,15 @@ void Fun::timerlong()
 
 void Fun::ParseTimedCommand(std::string msCommand, int miTime)
 {
-    if (msCommand == "[120] quotes")    // splitting into [time] and command where [time] is optional and time is a INT
+    if (msCommand == "quotes")    // splitting into [time] and command where [time] is optional and time is a INT
     {
-        timer_long_sec.push_back(miTime + 300);
-        timer_long_command.push_back("[120] quotes");
+        unsigned int _uiNextTime = (unsigned int)abs(uiTimeConfig / (Global::Instance().get_Channels().GetChannels().size() + 1));
+        if (_uiNextTime < uiMininumTimeConfig)
+        {
+            _uiNextTime = uiMininumTimeConfig;
+        }
+        timer_long_sec.push_back(miTime + _uiNextTime);
+        timer_long_command.push_back("quotes");
         Quote();
     }
 }

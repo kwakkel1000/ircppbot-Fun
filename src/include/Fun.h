@@ -23,6 +23,9 @@ private:
 
     bool bRun;
     std::vector< std::string > vQuotes;
+    unsigned int uiTimeConfig;
+    unsigned int uiMininumTimeConfig;
+    std::string sQuotesTable;
 
     //classes
     DataInterface* mpDataInterface;

@@ -1,1 +1,4 @@
 [fun]
+FunTimeConfig=1200
+FunMinimumTimeConfig=600
+FunQuotesTable=quotes
